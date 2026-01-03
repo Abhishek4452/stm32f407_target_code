@@ -1,13 +1,13 @@
 # stm32f407_target_code
 
 
-LEVEL - BEGINNER 
-APPROCH OF CODING - bare-metal in embedded c.
-PURPOSE of REPO - SHARING CODE WITH OTHERS or VALIDATING ITSELF.
+**LEVEL** - BEGINNER 
+**APPROCH OF CODING** - bare-metal in embedded c.
+**PURPOSE of REPO** - SHARING CODE WITH OTHERS or VALIDATING ITSELF.
 
 # DEVELOPMENT ENVIRONMENT 
--- toolchain : arm-none-eabi-gcc
-IDE: STM32CUBEIDE
+**toolchain :** arm-none-eabi-gcc
+**IDE:** STM32CUBEIDE
 
 
 NOTE - This repository contains architecture-specific, register-level code written specially for STM32F407 discovery board. Do not blindly copy the code for other stm32 variants without checking the refernce manual or memory maps 
