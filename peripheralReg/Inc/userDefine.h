@@ -61,7 +61,7 @@ typedef struct
 	uint32_t pin_13          :1;
 	uint32_t pin_14          :1;
 	uint32_t pin_15          :1;
-	uint32_t reserved        :16
+	uint32_t reserved        :16;
 }GPIOx_ODR_t;
 
 // for the mode register

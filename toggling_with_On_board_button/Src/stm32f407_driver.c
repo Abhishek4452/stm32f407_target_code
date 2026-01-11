@@ -97,9 +97,9 @@ void GPIO_periClockControl(GPIO_RegDef_t *pGPIOx,uint8_t ENOrDI){
  *
  */
 void GPIO_Init(GPIO_Handle_t *pGPIOHandle){ // pGPIOHandle is given by the user
-	uint32_t temp =0; // temp temporarily holds the correctly shifted bit pattern for ONE pin before it is written into the hardware register.
+	uint32_t temp =0;
 	//1. config the mode of gpio pin
-	if(pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ANALOG){  // if pin Mode is less than the 4 - analog mode then this work
+	if(pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ANALOG){
 		// non interrupt mode
 		temp = (pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode << (2* pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
 		pGPIOHandle->pGPIOx->MODER &= ~(0x3 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber); // clearing bits field

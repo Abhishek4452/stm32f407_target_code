@@ -15,30 +15,31 @@
  *
  ******************************************************************************
  */
-
 #include <stdint.h>
 #include "stm32f407xx.h"
-
-void delay(void){
-	for(uint32_t i=0; i< 500000;i++);
-}
-int main(void)
+#include "stm32f407_driver.h"
+void delay(void)
 {
-	GPIO_Handle_t GpioLed;
+ for(volatile uint32_t i= 0;i< 500000;i++);
+}
+int main(void){
+	GPIO_Handle_t GPIOLed;
 
-	GpioLed.pGPIOx = GPIOD;
-	GpioLed.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_12;
-	GpioLed.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_OUT;
-	GpioLed.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
-	GpioLed.GPIO_PinConfig.GPIO_OPType = GPIO_OP_TYPE_PP;
-	GpioLed.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
+	GPIOLed.pGPIOx = GPIOD;
+	GPIOLed.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_12;
+	GPIOLed.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_OUT;
+	GPIOLed.GPIO_PinConfig.GPIO_OPType = GPIO_OP_TYPE_PP;
+	GPIOLed.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PIN_PUPD;
+	GPIOLed.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
 
+	// enabling the clock
 	GPIO_periClockControl(GPIOD,ENABLE);
-	GPIO_Init(&GpioLed);
+	GPIO_Init(&GPIOLed);
+
 	while(1){
 		GPIO_ToggleOutputPin(GPIOD,GPIO_PIN_NO_12);
 		delay();
 	}
-    /* Loop forever */
-return 0;
+
+	return 0;
 }

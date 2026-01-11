@@ -13,7 +13,7 @@
 //*************************************************************************************************************************************************************
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-//*********************************************************  USER CONFIG STRUCTURE FOR GPIO ****************************************************************************************************
+//*********************************************************  USER CONFIG STRUCTURE FOR GPIO **************************************************************
 typedef struct
 {
 	uint8_t GPIO_PinNumber;		 // << possible value from @GPIO_PIN_NUMBER
@@ -25,7 +25,25 @@ typedef struct
 
 }GPIO_Pin_Config_t;
 
-//-----------------------------------------------------------   HANDLE STRUCTURE OF GPIO   --------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------   HANDLE STRUCTURE OF GPIO   -------------------------------------------------------------
+/*
+ * GPIO_Handle_t → driver/application handle
+typedef struct{
+	GPIO_RegDef_t *pGPIOx;        // which GPIO port (A, B, C...)
+	GPIO_Pin_Config_t GPIO_PinConfig; // how the pin should be configured
+} GPIO_Handle_t;
+
+
+Does NOT represent hardware
+
+Does NOT add offsets
+
+Exists only in software
+
+Used to pass context to driver functions
+
+👉 This is about organizing configuration and intent
+ */
 typedef struct{
 	GPIO_RegDef_t *pGPIOx;  // this hold the base addr of the gpio
 	GPIO_Pin_Config_t GPIO_PinConfig;      // this hold the pin config of the gpio

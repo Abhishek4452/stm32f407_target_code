@@ -1,4 +1,4 @@
- /*
+/*
  * stm32f407xx.h
  * NOTE - please include the path of this file from the setting -> gcc compiler -> add path -> ok and apply changes
  * this
@@ -32,7 +32,7 @@
 // *********************** AHB1 BUS PERIPHERAL ******************************************* //
 
 
-#define GPIOA_BASEADDR        AHB1_PERI_ADDR            // 0000 is our off set
+#define GPIOA_BASEADDR        AHB1_PERI_ADDR  // 0000 is our off set
 #define GPIOB_BASEADDR        (AHB1_PERI_ADDR + 0x0400)
 #define GPIOC_BASEADDR        (AHB1_PERI_ADDR + 0x0800)
 #define GPIOD_BASEADDR        (AHB1_PERI_ADDR + 0x0C00)
@@ -46,8 +46,8 @@
 
 
 
-/*
- *  communication peripheral hanging on APB1 BUS
+/* communication peripheral hanging on APB1 BUS
+ *
  */
 
 #define I2C1_BASEADDR            (PERI_ADDR+0x5400)
@@ -80,19 +80,19 @@
 /// ********************************************** PERIPHERAL REGISTER DECLEARATION ************************************************************
 typedef struct
 {
-	volatile uint32_t MODER;      //                    MODER register decides what a GPIO pin is allowed to do. offset -- 0x00
-	volatile uint32_t OTYPER;     //                    GPIO port output type register                           offset -- T0x04
-	volatile uint32_t OSPEEDR;    //                    GPIO port output speed register                          offset -- D0x08
-	volatile uint32_t PUPDR;      //                    GPIO port pull-up/pull-down register                     offset -- R0x0C
-	volatile uint32_t IDR;        //                    GPIO port input data register                            offset -- 0x10
-	volatile uint32_t ODR;        //                    GPIO port output data register                           offset -- 0x14
-	volatile uint32_t BSRR;       //                    GPIO port bit set/reset register                       offset -- 0x18
-	volatile uint32_t LCKR;       //                    GPIO port configuration lock register                  offset -- 0x1C
+	volatile uint32_t MODER;    //                    GPIO port mode register                               offset -- 0x00
+	volatile uint32_t OTYPER;   //                    GPIO port output type register                        offset -- T0x04
+	volatile uint32_t OSPEEDR;  //                    GPIO port output speed register                       offset -- D0x08
+	volatile uint32_t PUPDR;    //                    GPIO port pull-up/pull-down register                  offset -- R0x0C
+	volatile uint32_t IDR;      //                    GPIO port input data register                         offset -- 0x10
+	volatile uint32_t ODR;      //                    GPIO port output data register                        offset -- 0x14
+	volatile uint32_t BSRR;     //                    GPIO port bit set/reset register                      offset -- 0x18
+	volatile uint32_t LCKR;     //                    GPIO port configuration lock register                 offset -- 0x1C
 	volatile uint32_t AFR[2];     //                    GPIO alternate function low and high register    offset -- 0x20 ,offset -- 0x24 for high
 
 }GPIO_RegDef_t;
 
-//  --------------------------------------------- REGISTER DECLERATION FOR PERIPHERAL (RCC) --------------------------------------------------------------------
+//  --------------------------------------------- REGISTER DECLERATION FOR PERIPHERAL --------------------------------------------------------------------
 
 typedef struct
 {
@@ -120,7 +120,7 @@ typedef struct
 	volatile int32_t SSCGR; 	 //				RCC spread spectrum clock generation register				    offset = 0x80
 	volatile int32_t PLLI2SCFGR; //				RCC PLLI2S configuration register 							    offset = 0x84
 
-// also need to mention the reserved memory so the better memory allocation can be done
+
 }RCC_RegDef_t;
 
 
@@ -163,14 +163,14 @@ typedef struct
 #define SPI3_PCLK_EN()                  (RCC->APB1ENR |= (1<<15))
 #define SPI1_PCLK_EN()					(RCC->APB2ENR |=  (1<<12))
 // ************************************************ CLK ENABLE MACRO FOR USARTx ***********************************************************
-#define USART2_PCLK_EN()		    	(RCC->APB1ENR |= (1<<17))
-#define USART3_PCLK_EN()				(RCC->APB1ENR |= (1<<18))
-#define UART4_PCLK_EN()					(RCC->APB1ENR |= (1<<19))
-#define UART5_PCLK_EN()					(RCC->APB1ENR |= (1<<20))
-#define USART1_PCLK_EN()				(RCC->APB2ENR |= (1<<4))
-#define USART6_PCLK_EN()				(RCC->APB2ENR |= (1<<5))
+#define USART2_PCLK_EN()					(RCC->APB1ENR |= (1<<17))
+#define USART3_PCLK_EN()					(RCC->APB1ENR |= (1<<18))
+#define UART4_PCLK_EN()						(RCC->APB1ENR |= (1<<19))
+#define UART5_PCLK_EN()						(RCC->APB1ENR |= (1<<20))
+#define USART1_PCLK_EN()					(RCC->APB2ENR |= (1<<4))
+#define USART6_PCLK_EN()					(RCC->APB2ENR |= (1<<5))
 // ************************************************ CLK ENABLE MACRO FOR SYSCFG ***********************************************************
-#define SYSCFG_PCLK_EN() 				(RCC->APB2ENR |= (1<<14))
+#define SYSCFG_PCLK_EN() 					(RCC->APB2ENR |= (1<<14))
 
 
 // ------------------------------------------------- CLK DISABLE FOR I2Cx peripheral -----------------------------------------------------------------
@@ -216,8 +216,8 @@ typedef struct
 #define GPIO_PIN_RESET   RESET
 
 
-#include "stm32f407_driver.h"
 
+#include "stm32f407_driver.h"
 #endif /* STM32F407XX_H_ */
 
 
