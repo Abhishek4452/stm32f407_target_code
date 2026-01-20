@@ -29,7 +29,7 @@ int main(void){
 	GPIOLed.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_12;
 	GPIOLed.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_OUT;
 	GPIOLed.GPIO_PinConfig.GPIO_OPType = GPIO_OP_TYPE_PP;
-	GPIOLed.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PIN_PUPD;
+	GPIOLed.GPIO_PinConfig.GPIO_PinPuPdControl = 0;
 	GPIOLed.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
 
 	// enabling the clock

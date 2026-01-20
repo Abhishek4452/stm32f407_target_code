@@ -1,0 +1,5 @@
+../Src/spi_driver.c:15:6:SPI_periClockControl	16	static
+../Src/spi_driver.c:52:6:SPI_Init	24	static
+../Src/spi_driver.c:95:6:SPI_DeInit	16	static
+../Src/spi_driver.c:115:9:SPI_GETFLAGSTATUS	16	static
+../Src/spi_driver.c:125:6:SPI_SendData	24	static

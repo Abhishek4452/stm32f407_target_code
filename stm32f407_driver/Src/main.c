@@ -13,14 +13,83 @@
  * in the root directory of this software component.
  * If no LICENSE file comes with this software, it is provided AS-IS.
  *
+ *
+ *  AIM OF THIS PROJECT
+ *  toggling the onboard Led with the help of the on board button when the button is pressed
+ *
  ******************************************************************************
  */
 
-#include <stdint.h>
+#include <string.h>
 #include "stm32f407xx.h"
+#include "stm32f407_driver.h"
+#include "stm32f407_spi_driver.h"
+// writing code for the SPI protocol validation .
+// no slave is needed for the verifiying the code
 
+/* for SPI2
+ *  NSS  -> PB12
+ *  SCK  -> PB13
+ *  MISO -> PB14
+ *  MOSI -> PB15
+ *  ALT MODE -> 5
+ */
+void SPI_GPIOInits(void){
+	GPIO_Handle_t SPIPins;
+	SPIPins.pGPIOx = GPIOB;
+	SPIPins.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
+	SPIPins.GPIO_PinConfig.GPIO_PinAltFunMode = 5;
+	SPIPins.GPIO_PinConfig.GPIO_OPType = GPIO_OP_TYPE_PP;
+	SPIPins.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
+	SPIPins.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
 
-int main(void)
-{
+	// set the SCLK
+	SPIPins.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_13;
+	GPIO_Init(&SPIPins);
+
+	// MOSI
+	SPIPins.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_15;
+	GPIO_Init(&SPIPins);
+
+	//MISO
+	//SPIPins.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_14;
+	//GPIO_Init(&SPIPins);
+
+	//NSS
+	//SPIPins.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_12;
+	//GPIO_Init(&SPIPins);
 
 }
+
+void SPI2_Inits(void){
+	SPI_Handle_t SPIHandle2;
+
+	SPIHandle2.pSPIx = SPI2;
+	SPIHandle2.SPIConfig.SPI_BusConfig = SPI_BUS_CONFIG_FD;
+	SPIHandle2.SPIConfig.SPI_DeviceMode = SPI_DEVICE_MODE_MASTER;
+	SPIHandle2.SPIConfig.SPI_SclkSpeed = SPI_SCLK_SPEED_DIV_BY_2;
+	SPIHandle2.SPIConfig.SPI_DFF = SPI_DFF_8_BIT;
+	SPIHandle2.SPIConfig.SPI_CPHA = SPI_CPOL_LOW;
+	SPIHandle2.SPIConfig.SPI_CPOL = SPI_CPHA_LOW;
+	SPIHandle2.SPIConfig.SPI_SSM = SPI_SSM_EN; //for NSS
+
+	SPI_Init(&SPIHandle2);
+
+}
+
+
+
+int main(void){
+char user_data[] = "hello World";
+	SPI_GPIOInits(); // initialize the GPIO pin to behave the SPI2 pins
+
+	SPI2_Inits(); //initialize the SPI2 peripheral parameters
+
+	SPI_SendData(SPI2,(uint8_t*) user_data, strlen(user_data));
+	while(1);
+
+	return 0;
+}
+
+
+

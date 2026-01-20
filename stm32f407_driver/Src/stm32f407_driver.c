@@ -1,10 +1,11 @@
 /*
- * stm32f407_driver.c
+ *                                     stm32f407_driver.c
  *   GPIO DRIVER FILE
  *  Created on: 05-Jan-2026
  *      Author: debian
  */
 #include "stm32f407_driver.h"
+
 
 
 
@@ -96,34 +97,72 @@ void GPIO_periClockControl(GPIO_RegDef_t *pGPIOx,uint8_t ENOrDI){
  * @Note    	- NONE
  *
  */
-void GPIO_Init(GPIO_Handle_t *pGPIOHandle){ // pGPIOHandle is given by the user
+void GPIO_Init(GPIO_Handle_t *pGPIOHandle){
+	// enable the PERIPHERAL CLOCK FOR USER
+
+	GPIO_periClockControl(pGPIOHandle->pGPIOx, ENABLE);
+
+	// pGPIOHandle is given by the user
 	uint32_t temp =0; // temp temporarily holds the correctly shifted bit pattern for ONE pin before it is written into the hardware register.
+	// pGPIOHandle give us the base address. to access the gpio
+
 	//1. config the mode of gpio pin
 	if(pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_ANALOG){  // if pin Mode is less than the 4 - analog mode then this work
 		// non interrupt mode
 		temp = (pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode << (2* pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
 		pGPIOHandle->pGPIOx->MODER &= ~(0x3 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber); // clearing bits field
-		pGPIOHandle -> pGPIOx -> MODER |= temp ; // setting of the bits fields
+		pGPIOHandle -> pGPIOx -> MODER |= temp ; // setting of the bits fields //storing the data into the actual register
 		temp =0;
 	}
 	else{
-		// code later for interrupt
+		// ****************************   code later for interrupt
+		if (pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_FT){
+			// 1. config the FISR
+			EXTI->FTSR |= (1<<pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+			EXTI->RTSR &= ~(1<<pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+		}
+		else if(pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_IT_RT){
+			// 1. config the RTSR -- rising trigger shift reg
+			EXTI->RTSR |= (1<<pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+			EXTI->FTSR &= ~(1<<pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+		}
+		else if(pGPIOHandle -> GPIO_PinConfig.GPIO_PinMode  == GPIO_MODE_IT_RFT){
+			//1. config both FTST AND RTSR
+			EXTI->FTSR |= (1<<pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+			EXTI->RTSR |= (1<<pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+		}
+		// 2. config the GPIO port selection in SYSCFG_EXTICR
+		uint8_t temp1 = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber/4 ;// this give us EXTI register number
+		uint8_t temp2 = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber%4; // give us the positon of the exti where we have to set the value
+		// macro
+		uint8_t portcode = GPIO_BASEADDR_TO_CODE(pGPIOHandle->pGPIOx);
+
+		SYSCFG_PCLK_EN();
+		SYSCFG->EXTICR[temp1] |= (portcode << (temp2*4));
+
+		// 3. enable the exti interrupt delivery using the IMR (interrupt mask register)
+		EXTI->IMR |= 1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber; // enabling the IMR COrresponding to IMR number
+
 	}
+
 	//2. config the speed
 	temp = (pGPIOHandle -> GPIO_PinConfig.GPIO_PinSpeed << (2*pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
 	pGPIOHandle->pGPIOx->OSPEEDR &= ~(0x3 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber); // clearing bits field
 	pGPIOHandle -> pGPIOx -> OSPEEDR |= temp ;
 	temp =0;
+
 	//3. config the pupd setting
 	temp = (pGPIOHandle->GPIO_PinConfig.GPIO_PinPuPdControl << (2*pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
 	pGPIOHandle->pGPIOx->PUPDR &= ~(0x3 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber); // clearing bits field
 	pGPIOHandle -> pGPIOx -> PUPDR |= temp ;
 	temp =0;
+
 	//4. config the optype
 	temp = (pGPIOHandle -> GPIO_PinConfig.GPIO_OPType << (1*pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber));
 	pGPIOHandle->pGPIOx->OTYPER  &= ~(0x3 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber); // clearing bits field
 	pGPIOHandle -> pGPIOx -> OTYPER |= temp ;
 	temp =0;
+
 	//5. config the alternate functionality
 	if (pGPIOHandle ->GPIO_PinConfig.GPIO_PinMode == GPIO_MODE_ALTFN){
 		// config alt fn reg
@@ -308,21 +347,69 @@ void GPIO_ToggleOutputPin(GPIO_RegDef_t *pGPIOx, uint8_t PinNumber){
 
 /*/***************************************************************************************************************************
  *
- * @fn           - GPIO_IRQCOnfig
+ * @fn           - GPIO_IRQInterruptConfig
  * @brief        - interupt request will be configured her , when to deal  with which interrupt and how much is her priority
  * @param[in]	 - IRQ number will be needed
- * @param[in]	 - IRQ priority will be set here
  * @param[in]	 - enabling or disabling the interupt
  *
  * @return 		-
  * @Note    	-
  *
  */
-void GPIO_IRQConfig(uint8_t IRQNumber,uint8_t IRQPriority,uint8_t EnOrDi){
+void GPIO_IRQInterruptConfig(uint8_t IRQNumber,uint8_t IRQPriority,uint8_t EnOrDi){
+ // we are going to processor side
+	// go to cortex M4 user manual( NVIC )
+	if( EnOrDi == ENABLE){
+		if(IRQNumber <= 31){
+			// program ISER 0 register
+			*NVIC_ISER0 |= (1<<IRQNumber);
+		}
+		else if(IRQNumber >31 && IRQNumber <64){
+			// program ISER 1 register
+			*NVIC_ISER1 |= (1<<(IRQNumber%32));
+		}
+		else if(IRQNumber >= 64 && IRQNumber < 96){
+			// program ISER 2 register
+			*NVIC_ISER3 |= (1<<(IRQNumber%64));
+		}
+	}
+	else{
+		// ***************************** DISABLE *******************************
 
+		if(IRQNumber <= 31){
+					// program ISER 0 register
+			*NVIC_ISER0 &= ~(1<<IRQNumber);
+		}
+		else if(IRQNumber >31 && IRQNumber <64){
+					// program ISER 1 register
+			*NVIC_ISER1 &= ~(1<<(IRQNumber%32));
+		}
+		else if(IRQNumber >= 64 && IRQNumber < 96){
+					// program ISER 2 register
+			*NVIC_ISER3 &= ~(1<<(IRQNumber%64));
+		}
+	}
 }
 
+/*/***************************************************************************************************************************
+ *
+ * @fn           - GPIO_IRQPriorityCOnfig
+ * @brief        - interupt request will be configured her , when to deal  with which interrupt and how much is her priority
+ * @param[in]	 - IRQ number will be needed
+ * @param[in]    - Priority of the interrupt
+ * @param[in]	 - enabling or disabling the interupt
+ *
+ * @return 		-
+ * @Note    	-
+ *
+ */
+void GPIO_IRQPriorityConfig(uint8_t IRQNumber,uint8_t IRQPriority){
+ uint8_t iprx = IRQNumber /4;
+ uint8_t iprx_section = IRQNumber % 4;
+ uint8_t shift_amount = (8*iprx_section)+(8-NO_PR_BITS_IMPLEMENTED);
+ *(NVIC_PR_BASE_ADDR + (4*iprx) )  |= (IRQPriority << shift_amount);
 
+}
 
 
 
@@ -338,6 +425,10 @@ void GPIO_IRQConfig(uint8_t IRQNumber,uint8_t IRQPriority,uint8_t EnOrDi){
  * @Note    	-
  *
  */
-void GPIO_IRQHandling(uint8_t PinNumber); // require only the pin number to handle the intrerrupt
-
-
+void GPIO_IRQHandling(uint8_t PinNumber){ // require only the pin number to handle the intrerrupt
+// clear the exti pr register
+	if (EXTI->PR & (1<< PinNumber)){
+		// clear
+		EXTI->PR |= (1<<PinNumber);
+	}
+}

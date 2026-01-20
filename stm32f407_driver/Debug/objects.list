@@ -1,4 +1,5 @@
 "./Src/main.o"
+"./Src/spi_driver.o"
 "./Src/stm32f407_driver.o"
 "./Src/syscalls.o"
 "./Src/sysmem.o"

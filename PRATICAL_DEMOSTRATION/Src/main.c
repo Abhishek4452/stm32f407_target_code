@@ -51,7 +51,7 @@ int main(void)
 	GPIO_SUPPORT1(GPIOD,GPIO_PIN_NO_14,ENABLE);
 	GPIO_SUPPORT1(GPIOD,GPIO_PIN_NO_15,ENABLE);
 	uint8_t status = 1 ;
-	while(status ){
+	while(status){
 		if(GPIO_ReadFromInputPin(GPIOA,GPIO_PIN_NO_0)){
 			delay();
 			if (status == 1){
